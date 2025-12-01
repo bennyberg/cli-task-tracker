@@ -54,6 +54,28 @@ def now_iso():
     return datetime.now().isoformat(timespec="seconds")
 
 
+# ========== task-cli helper functions ==========
+def _change_status(task_id_str, new_status):
+    try:
+        task_id = int(task_id_str)
+    except ValueError:
+        print("Error: <id> must be an integer.")
+        return
+
+    tasks = load_tasks()
+    task, idx = find_task_by_id(tasks, task_id)
+
+    if task is None:
+        print(f"Error: No task with id {task_id}")
+        return
+
+    task["status"] = new_status
+    task["updatedAt"] = now_iso()
+    tasks[idx] = task
+    save_tasks(tasks)
+
+    print(f"Task {task_id} marked as {new_status}")
+
 # ========== task-cli functions ==========
 def print_help():
     """For use when calling task-cli without input"""
@@ -149,18 +171,14 @@ def cmd_mark_in_progress(args):
     if len(args) != 1:
         print("Error: 'mark-in-progress' requires exactly one <id>")
         return
-    task_id_str = args[0]
-    print(f"[DEBUG] Would mark task {task_id_str} as in-progress")
-
+    _change_status(args[0], "in-progress")
 
 def cmd_mark_done(args):
     if len(args) != 1:
         print("Error: 'mark-done' requires exactly one <id>")
         return
-    task_id_str = args[0]
-    print(f"[DEBUG] Would mark task {task_id_str} as done")
-
-
+    _change_status(args[0], "done")
+    
 def cmd_list(args):
     status = args[0] if args else None
     if status is not None and status not in VALID_STATUSES:

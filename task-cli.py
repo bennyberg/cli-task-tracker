@@ -1,8 +1,58 @@
 #!/usr/bin/env python3
 import sys
+import os
+import json
+from datetime import datetime
+
+TASKS_FILE = "tasks.json"
+VALID_STATUSES = ("todo", "in-progress", "done")
+
+# ========== JSON FILE HELPERS ==========
 
 
+def load_tasks():
+    """Load tasks from tasks.json. If file doesn't exist, return empty list."""
+
+    if not os.path.exists(TASKS_FILE):
+        return []
+
+    try:
+        with open(TASKS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        print("Error: tasks.json is not valid JSON. Fix or delete the file.")
+        sys.exit(1)
+
+    if not isinstance(data, list):
+        print("Error: tasks.json format is invalid (expected a list).")
+        sys.exit(1)
+
+    return data
+
+
+def save_tasks(tasks):
+    """Save list of tasks to tasks.json."""
+    with open(TASKS_FILE, "w", encoding="utf-8") as f:
+        json.dump(tasks, f, indent=2)
+
+
+def get_next_id(tasks):
+    """Return next numeric id based on current tasks."""
+    if not tasks:
+        return 1
+    # assume each task has an "id" key
+    max_id = max(task.get("id", 0) for task in tasks)
+    return max_id + 1
+
+
+def now_iso():
+    return datetime.now().isoformat(timespec="seconds")
+
+
+# ========== task-cli functions ==========
 def print_help():
+    """For use when calling task-cli without input"""
+
     print("Usage:")
     print("  task-cli add <description>")
     print("  task-cli update <id> <new-description>")
@@ -16,8 +66,23 @@ def cmd_add(args):
     if not args:
         print("Error: description is required for 'add'")
         return
+
     description = " ".join(args)
-    print(f"[DEBUG] Would add task: {description}")
+    tasks = load_tasks()
+    new_id = get_next_id(tasks)
+
+    task = {
+        "id": new_id,
+        "description": description,
+        "status": "todo",
+        "createdAt": now_iso(),
+        "updatedAt": now_iso(),
+    }
+
+    tasks.append(task)
+    save_tasks(tasks)
+
+    print(f"Added task {new_id}: {description}")
 
 
 def cmd_update(args):

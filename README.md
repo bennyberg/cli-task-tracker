@@ -1,9 +1,9 @@
-Task CLI - Simple Task Tracker
+# Task CLI - Simple Task Tracker
 
 Task CLI is a lightweight command-line tool for tracking your tasks directly from the terminal.
 It lets you quickly add what you need to do, mark what you’re working on, and keep track of what’s already done - all stored locally in a simple JSON file.
 
-Features:
+## Features:
 
 * Add new tasks with a short description
 
@@ -15,36 +15,36 @@ Features:
 
 * List:
 
-    - all tasks
+    * all tasks
 
-    - only done tasks
+    * only done tasks
 
-    - only in-progress tasks
+    * only in-progress tasks
 
-    - only todo tasks
+    * only todo tasks
 
 * Tasks are stored in a tasks.json file in the current directory
 
-Example Usage:
+## Example Usage:
 
-# Add a new task
-task-cli add "Buy groceries"
+### Add a new task
+    task-cli add "Buy groceries"
 
-# List all tasks
-task-cli list
+### List all tasks
+    task-cli list
 
-# Mark a task as in progress
-task-cli mark-in-progress 1
+### Mark a task as in progress
+    task-cli mark-in-progress 1
 
-# Mark a task as done
-task-cli mark-done 1
+### Mark a task as done
+    task-cli mark-done 1
 
-# List only done tasks
-task-cli list done
+### List only done tasks
+    task-cli list done
 
-# Update a task description
-task-cli update 1 "Buy groceries and snacks"
+### Update a task description
+    task-cli update 1 "Buy groceries and snacks"
 
-# Delete a task
-task-cli delete 1
+### Delete a task
+    task-cli delete 1
 

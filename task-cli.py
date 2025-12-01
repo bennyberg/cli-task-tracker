@@ -120,11 +120,23 @@ def cmd_mark_done(args):
 
 def cmd_list(args):
     status = args[0] if args else None
-    if status not in (None, "todo", "in-progress", "done"):
-        print("Error: status must be one of: todo, in-progress, done")
+    if status is not None and status not in VALID_STATUSES:
+        print("Error: status must be one of:", ", ".join(VALID_STATUSES))
         return
-    print(f"[DEBUG] Would list tasks with status: {status or 'ANY'}")
+    tasks = load_tasks()
 
+    if status:
+        tasks = [t for t in tasks if t.get("status") == status]
+
+    if not tasks:
+        print("No tasks found.")
+        return
+
+    for t in tasks:
+        tid = t.get("id")
+        st = t.get("status")
+        desc = t.get("description")
+        print(f"[{tid}] ({st}) {desc}")
 
 COMMANDS = {
     "add": cmd_add,

@@ -127,9 +127,23 @@ def cmd_delete(args):
     if len(args) != 1:
         print("Error: 'delete' requires exactly one <id>")
         return
-    task_id_str = args[0]
-    print(f"[DEBUG] Would delete task {task_id_str}")
 
+    try:
+        task_id = int(args[0])
+    except ValueError:
+        print("Error: <id> must be an integer.")
+        return
+
+    tasks = load_tasks()
+    original_len = len(tasks)
+    tasks = [t for t in tasks if t.get("id") != task_id]
+
+    if len(tasks) == original_len:
+        print(f"Error: No task with id {task_id}")
+        return
+
+    save_tasks(tasks)
+    print(f"Deleted task {task_id}")
 
 def cmd_mark_in_progress(args):
     if len(args) != 1:

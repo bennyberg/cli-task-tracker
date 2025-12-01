@@ -8,8 +8,6 @@ TASKS_FILE = "tasks.json"
 VALID_STATUSES = ("todo", "in-progress", "done")
 
 # ========== JSON FILE HELPERS ==========
-
-
 def load_tasks():
     """Load tasks from tasks.json. If file doesn't exist, return empty list."""
 
@@ -43,6 +41,13 @@ def get_next_id(tasks):
     # assume each task has an "id" key
     max_id = max(task.get("id", 0) for task in tasks)
     return max_id + 1
+
+def find_task_by_id(tasks, task_id):
+    """Return (task, index) pair or (None, None) if not found."""
+    for i, t in enumerate(tasks):
+        if t.get("id") == task_id:
+            return t, i
+    return None, None
 
 
 def now_iso():
@@ -91,7 +96,31 @@ def cmd_update(args):
         return
     task_id_str = args[0]
     new_description = " ".join(args[1:])
-    print(f"[DEBUG] Would update task {task_id_str} to: {new_description}")
+    if len(args) < 2:
+        print("Error: 'update' requires <id> and <new-description>")
+        return
+
+    try:
+        task_id = int(args[0])
+    except ValueError:
+        print("Error: <id> must be an integer.")
+        return
+    
+    new_description = " ".join(args[1:])
+
+    tasks = load_tasks()
+    task, idx = find_task_by_id(tasks, task_id)
+
+    if task is None:
+        print(f"Error: No task with id {task_id}")
+        return
+
+    task["description"] = new_description
+    task["updatedAt"] = now_iso()
+    tasks[idx] = task
+
+    save_tasks(tasks)
+    print(f"Updated task {task_id}: {new_description}")
 
 
 def cmd_delete(args):
@@ -137,6 +166,7 @@ def cmd_list(args):
         st = t.get("status")
         desc = t.get("description")
         print(f"[{tid}] ({st}) {desc}")
+
 
 COMMANDS = {
     "add": cmd_add,
